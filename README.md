@@ -33,7 +33,7 @@ Documentação completa da configuração do roteador MikroTik do meu HomeLab pe
 ## Topologia da Rede
 
 ```
-Internet (177.74.142.238)
+Internet (192.168.100.220)
         │
         ▼
   Roteador Upstream
