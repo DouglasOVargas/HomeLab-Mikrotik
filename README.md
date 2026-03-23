@@ -245,7 +245,6 @@ PersistentKeepalive = 25
 ```
 .
 ├── README.md
-└── backup-config.rsc     # Export completo do RouterOS
 ```
 
 ---
