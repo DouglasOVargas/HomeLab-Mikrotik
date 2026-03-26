@@ -1,0 +1,66 @@
+# ============================================================
+# PASSO 1 — Criar a CA Raiz (HomeLab Root CA)
+# ============================================================
+
+/certificate add \
+  name=HomeLab-CA \
+  common-name="HomeLab Root CA" \
+  organization="HomeLab" \
+  country="BR" \
+  key-size=4096 \
+  days-valid=3650 \
+  key-usage=key-cert-sign,crl-sign
+
+/certificate sign HomeLab-CA
+
+# Verificar
+/certificate print where name=HomeLab-CA
+
+
+# ============================================================
+# PASSO 2 — Criar o certificado Wildcard *.home.lab
+# ============================================================
+
+/certificate add \
+  name=wildcard.home.lab \
+  common-name="*.home.lab" \
+  subject-alt-name=DNS:*.home.lab,DNS:home.lab \
+  organization="HomeLab" \
+  country="BR" \
+  key-size=2048 \
+  days-valid=825 \
+  key-usage=digital-signature,key-encipherment,tls-server
+
+/certificate sign wildcard.home.lab ca=HomeLab-CA
+
+# Verificar
+/certificate print where name=wildcard.home.lab
+
+
+# ============================================================
+# PASSO 3 — Exportar os certificados
+# (arquivos ficam em /Files no Winbox)
+# ============================================================
+
+# Exportar CA raiz (instalar no Windows/navegador)
+/certificate export-certificate HomeLab-CA type=pem
+
+# Exportar certificado wildcard + chave privada
+# (usar nos serviços: Proxmox, GitLab, K8s, etc.)
+/certificate export-certificate wildcard.home.lab \
+  export-passphrase="" \
+  type=pem
+
+# Isso gera 3 arquivos no /Files:
+# cert_export_HomeLab-CA.crt        → instalar no Windows
+# cert_export_wildcard.home.lab.crt → certificado público
+# cert_export_wildcard.home.lab.key → chave privada
+
+
+# ============================================================
+# PASSO 4 — Usar o wildcard no próprio MikroTik (HTTPS)
+# ============================================================
+
+/ip service set www-ssl \
+  certificate=wildcard.home.lab \
+  disabled=no
